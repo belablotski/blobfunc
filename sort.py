@@ -8,6 +8,7 @@ def sort_v1(data):
         data[i] = data[pmin]
         data[pmin] = tmp
 
-data = [3, 4, 1, 5]
-sort_v1(data)
-print(data)
+if __name__ == "__main__":
+    data = [3, 4, 1, 5]
+    sort_v1(data)
+    print(data)
