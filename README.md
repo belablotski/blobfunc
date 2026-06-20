@@ -40,10 +40,14 @@ Reads a CSV blob from Azure Storage, sorts data rows by the first column (intege
 
 **Query parameters:**
 
-| Parameter   | Description                          |
-|-------------|--------------------------------------|
-| `container` | Storage container name               |
-| `blob`      | Blob name (e.g. `data.csv`)          |
+| Parameter          | Description                                                         |
+|---------------------|---------------------------------------------------------------------|
+| `container`         | Storage container name                                              |
+| `blob`              | Blob name (e.g. `data.csv`)                                         |
+| `output_blob`       | *(optional)* Blob name to write the sorted CSV into                 |
+| `output_container`  | *(optional)* Container for the output blob (defaults to `container`)|
+
+> **Line endings:** when writing the sorted output blob, the CSV is produced with `\r\n` line terminators per [RFC 4180](https://www.ietf.org/rfc/rfc4180.txt). Input blobs with `\n`-only endings are accepted and parsed correctly.
 
 **Example CSV blob (`data.csv`):**
 ```
@@ -53,11 +57,19 @@ id,name,value
 2,carol,300
 ```
 
-**Response:**
+**Response (JSON only):**
 ```json
 {
   "header": ["id", "name", "value"],
   "rows": [["1","bob","200"], ["2","carol","300"], ["3","alice","100"]],
+  "duration_ms": 0.0012
+}
+```
+
+**Response (with `output_blob`):**
+```json
+{
+  "output": { "container": "mycontainer", "blob": "sorted.csv" },
   "duration_ms": 0.0012
 }
 ```
@@ -87,8 +99,10 @@ pip install -r requirements.txt
 In a dedicated terminal:
 
 ```bash
-npx azurite --location .azurite --debug .azurite/debug.log
+npx azurite --location .azurite --debug .azurite/debug.log --skipApiVersionCheck
 ```
+
+> `--skipApiVersionCheck` is required because the `azure-storage-blob` SDK may use an API version newer than the locally installed Azurite.
 
 Azurite listens on:
 - Blob service: `http://127.0.0.1:10000`
@@ -127,9 +141,14 @@ curl -X POST http://localhost:7071/api/sort \
   -d '{"data": [3, 4, 1, 5]}'
 ```
 
-**Sort a CSV blob:**
+**Sort a CSV blob (return JSON only):**
 ```bash
 curl "http://localhost:7071/api/sort-blob?container=mycontainer&blob=data.csv"
+```
+
+**Sort and save the result to another blob:**
+```bash
+curl "http://localhost:7071/api/sort-blob?container=mycontainer&blob=data.csv&output_blob=sorted.csv"
 ```
 
 ---

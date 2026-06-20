@@ -98,12 +98,29 @@ def sort_blob_function(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json",
         )
 
+    output_blob = req.params.get("output_blob")
+    output_container = req.params.get("output_container") or container
+
+    output_info = None
+    if output_blob:
+        output_content = io.StringIO()
+        writer = csv.writer(output_content)
+        writer.writerow(header)
+        writer.writerows(data_rows)
+        encoded = output_content.getvalue().encode("utf-8")
+        out_client = BlobServiceClient.from_connection_string(conn_str).get_blob_client(
+            container=output_container, blob=output_blob
+        )
+        out_client.upload_blob(encoded, overwrite=True)
+        output_info = {"container": output_container, "blob": output_blob}
+
+    if output_info:
+        body = {"output": output_info, "duration_ms": round(duration_ms, 4)}
+    else:
+        body = {"header": header, "rows": data_rows, "duration_ms": round(duration_ms, 4)}
+
     return func.HttpResponse(
-        json.dumps({
-            "header": header,
-            "rows": data_rows,
-            "duration_ms": round(duration_ms, 4),
-        }),
+        json.dumps(body),
         status_code=200,
         mimetype="application/json",
     )
