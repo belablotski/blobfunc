@@ -89,7 +89,7 @@ def sort_blob_function(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         start = time.perf_counter()
-        data_rows.sort(key=lambda row: int(row[0]))
+        sort_v1(data_rows, key=lambda row: int(row[0]))
         duration_ms = (time.perf_counter() - start) * 1000
     except (ValueError, IndexError):
         return func.HttpResponse(
