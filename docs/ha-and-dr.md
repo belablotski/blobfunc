@@ -9,6 +9,8 @@ By default, Azure Storage is Locally Redundant (LRS), meaning data is replicated
 *   **For DR:** Upgrade your Storage Accounts to **Read-Access Geo-Redundant Storage (RA-GRS)**.
 *   **How it works:** Data written to the primary region is asynchronously replicated to a paired secondary region (e.g., East US replicates to West US). If the primary region fails, you can still read your data from the secondary region.
 
+    > **Stronger option — RA-GZRS:** For new enterprise workloads, prefer **Read-Access Geo-Zone-Redundant Storage (RA-GZRS)** over RA-GRS. It combines zone-redundancy within the primary region (protecting against data-center-level failures) with geo-replication to a secondary region. This makes it resilient to both zonal and regional outages simultaneously, at a small cost premium over RA-GRS.
+
 ## 2. Multi-Region Active-Passive Architecture
 An Azure Function App lives in a single region. If that region goes down, your code stops running.
 

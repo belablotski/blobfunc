@@ -21,9 +21,12 @@ Storage is cheap; **Transactions are expensive**. Azure bills you for every REST
 The Consumption Plan is not always the cheapest option at scale.
 
 *   **Consumption Plan:** Best for spiky, unpredictable workloads. You pay per execution. Cold starts occur when scaling from zero.
+*   **Flex Consumption Plan** *(GA since 2024 — the recommended default for most new workloads):* A modern evolution of the Consumption Plan with per-instance billing (more predictable than per-execution), **always-ready instances** (eliminating cold starts), built-in **VNet integration**, and scales to zero when idle. It fills the gap between Consumption and Premium without requiring a committed baseline spend.
+    *   **When to choose:** You need no cold starts and/or VNet access, but don't want to pay for permanently running Premium instances.
 *   **Premium Plan:** You pay a baseline monthly fee for pre-warmed instances, but the per-execution cost above that baseline can be cheaper depending on volume.
-    *   **When to switch:** If your function runs constantly (24/7 at high throughput), the Premium Plan (or even a Dedicated App Service Plan) often becomes cheaper than the Consumption plan.
-    *   Premium is also mandatory if you need VNet Integration (Network Security) or longer timeouts (up to 60 minutes).
+    *   **When to switch:** If your function runs constantly (24/7 at high throughput), the Premium Plan (or even a Dedicated App Service Plan) often becomes cheaper.
+    *   Premium also supports unlimited timeouts (`"functionTimeout": "-1"`) and is required for features not yet available on Flex Consumption.
+*   **Dedicated (App Service) Plan:** Best when you already have reserved App Service capacity or need full control over the underlying compute.
 
 ## 4. Log Analytics Data Retention
 Application Insights stores telemetry data in a Log Analytics Workspace. You are billed per GB of data ingested.

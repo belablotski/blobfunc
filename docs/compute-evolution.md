@@ -7,7 +7,7 @@ Azure Functions are an excellent starting point for event-driven workloads. Howe
 ## 1. When to Evolve
 You should consider migrating away from Azure Functions when:
 *   **Memory Bound:** Your blobs are so large that even chunked streaming is insufficient, and you need 16GB+ of RAM to hold massive pandas DataFrames.
-*   **Time Bound:** Processing a single blob takes longer than the 60-minute maximum timeout of the Premium Plan.
+*   **Time Bound:** Processing a single blob is so complex or slow that even the Premium Plan's unlimited timeout (set `"functionTimeout": "-1"` in `host.json`) becomes impractical due to cost or resource consumption, and a dedicated compute cluster is more appropriate.
 *   **Dependency Bound:** You need complex native C++ libraries, specialized ML drivers (CUDA), or legacy OS tools that cannot be packaged cleanly in a Function App.
 
 ## 2. Azure Container Apps (ACA)
