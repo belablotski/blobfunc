@@ -124,3 +124,41 @@ def sort_blob_function(req: func.HttpRequest) -> func.HttpResponse:
         status_code=200,
         mimetype="application/json",
     )
+
+
+@app.route(route="sort-blob-bind/{container}/{blob_name}")
+@app.blob_input(arg_name="inputblob", path="{container}/{blob_name}", connection="BLOB_CONNECTION_STRING")
+def sort_blob_bind_function(req: func.HttpRequest, inputblob: func.InputStream) -> func.HttpResponse:
+    content = inputblob.read().decode("utf-8")
+    
+    reader = csv.reader(io.StringIO(content))
+    rows = list(reader)
+
+    if len(rows) < 1:
+        return func.HttpResponse(
+            json.dumps({"error": "Blob is empty"}),
+            status_code=422,
+            mimetype="application/json",
+        )
+
+    header = rows[0]
+    data_rows = rows[1:]
+
+    try:
+        start = time.perf_counter()
+        sort_v1(data_rows, key=lambda row: int(row[0]))
+        duration_ms = (time.perf_counter() - start) * 1000
+    except (ValueError, IndexError):
+        return func.HttpResponse(
+            json.dumps({"error": "First column must be an integer identifier in every data row"}),
+            status_code=422,
+            mimetype="application/json",
+        )
+
+    body = {"header": header, "rows": data_rows, "duration_ms": round(duration_ms, 4)}
+
+    return func.HttpResponse(
+        json.dumps(body),
+        status_code=200,
+        mimetype="application/json",
+    )
