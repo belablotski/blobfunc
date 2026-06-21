@@ -78,6 +78,32 @@ id,name,value
 
 ---
 
+### `GET /api/sort-blob-bind/{container}/{blob}`
+
+Reads a CSV blob from Azure Storage using Azure Functions input bindings, sorts data rows by the first column (integer identifier), and returns the result.
+
+**Route parameters:**
+
+| Parameter          | Description                                                         |
+|---------------------|---------------------------------------------------------------------|
+| `container`         | Storage container name                                              |
+| `blob`              | Blob name (e.g. `data.csv`)                                         |
+
+**Response (JSON only):**
+```json
+{
+  "header": ["id", "name", "value"],
+  "rows": [["1","bob","200"], ["2","carol","300"], ["3","alice","100"]],
+  "duration_ms": 0.0012
+}
+```
+
+> **Note on error handling:** Because this endpoint uses bindings, the Azure Functions host runtime attempts to locate the blob *before* your code executes. If the blob is not found, the binding fails, and the caller receives a generic `500 Internal Server Error` instead of a `404 Not Found`.
+
+**Auth level:** `FUNCTION` — requires a `code` query parameter or `x-functions-key` header when deployed to Azure.
+
+---
+
 ## Local end-to-end workflow
 
 ### Prerequisites
@@ -149,6 +175,11 @@ curl "http://localhost:7071/api/sort-blob?container=mycontainer&blob=data.csv"
 **Sort and save the result to another blob:**
 ```bash
 curl "http://localhost:7071/api/sort-blob?container=mycontainer&blob=data.csv&output_blob=sorted.csv"
+```
+
+**Sort a CSV blob using bindings (JSON only):**
+```bash
+curl "http://localhost:7071/api/sort-blob-bind/mycontainer/data.csv"
 ```
 
 ---
